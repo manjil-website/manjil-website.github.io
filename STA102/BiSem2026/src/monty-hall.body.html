@@ -1,0 +1,49 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>Monty Hall</h1>
+<p class="lede">A car is behind one of three doors and goats are behind the other two. You pick a door. Monty, who
+knows where the car is, opens another door to show a goat and offers you the chance to switch. Should you?</p>
+{{SOURCE}}
+<section class="panel">
+  <h2>Play it yourself</h2>
+  <div class="doors" id="doors"></div>
+  <p id="msg" style="min-height:1.6em;font-weight:550"></p>
+  <div class="controls" id="choice" hidden>
+    <button class="btn" type="button" id="stay">Stay</button>
+    <button class="btn" type="button" id="switch">Switch</button>
+  </div>
+  <div class="controls"><button class="btn ghost" type="button" id="again">New game</button>
+    <button class="btn ghost" type="button" id="clear">Clear my record</button></div>
+  <div class="table-wrap"><table class="data" id="record"></table></div>
+</section>
+<section class="panel">
+  <h2>Simulate thousands of games</h2>
+  <div class="controls">
+    <label class="field">Doors <input type="range" id="n" min="3" max="100" value="3"><output id="n-o"></output></label>
+    <label class="check"><input type="checkbox" id="ignorant"> Monty doesn't know where the car is</label>
+  </div>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-games="1000">Play 1,000 games</button>
+      <button class="btn" type="button" data-games="10000">Play 10,000</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <p class="intro" id="rules"></p>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Games that count</div><div class="tile-value" id="t-g">0</div><div class="tile-sub" id="t-drop"></div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s1)"></span>Win rate if you stay</div><div class="tile-value" id="t-stay">&mdash;</div><div class="tile-sub" id="t-stay-x"></div></div>
+    <div class="tile key"><div class="tile-label"><span class="swatch" style="background:var(--s2)"></span>Win rate if you switch</div><div class="tile-value" id="t-sw">&mdash;</div><div class="tile-sub" id="t-sw-x"></div></div>
+  </div>
+  <div id="chart"></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>Staying wins exactly when your first pick was right: 1 time in 3. Switching wins in the other 2.</li>
+    <li>Slide to 100 doors. Monty opens 98 goat doors and leaves one closed. Your door still has its original 1/100; the
+        door he pointedly left shut has 99/100.</li>
+    <li>Now tick <b>Monty doesn't know</b>. He opens doors at random, and the games where he accidentally reveals the car are
+        thrown away. Among the games that survive, staying and switching are equally good. Monty's <em>knowledge</em> is what
+        makes switching better &mdash; the information you get depends on how it was produced.</li>
+  </ul>
+</section>

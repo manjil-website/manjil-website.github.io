@@ -1,0 +1,40 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>The birthday problem</h1>
+<p class="lede">Fill a room with people whose birthdays are random (365 equally likely days, ignoring 29 February).
+How often do two of them share a birthday? And how often does somebody share <em>yours</em>?</p>
+{{SOURCE}}
+<section class="panel">
+  <div class="controls">
+    <label class="field">People in the room <input type="range" id="k" min="2" max="100" value="23"><output id="k-o"></output></label>
+    <div class="group">
+      <button class="btn" type="button" id="one">Fill one room</button>
+      <button class="btn" type="button" data-rooms="1000">1,000 rooms</button>
+      <button class="btn" type="button" data-rooms="10000">10,000 rooms</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Rooms simulated with this many people</div><div class="tile-value" id="t-rooms">0</div></div>
+    <div class="tile key"><div class="tile-label"><span class="swatch" style="background:var(--s1)"></span>Some two people share a birthday</div>
+      <div class="tile-value" id="t-any">&mdash;</div><div class="tile-sub" id="t-any-x"></div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s2)"></span>Somebody shares person 1's birthday</div>
+      <div class="tile-value" id="t-you">&mdash;</div><div class="tile-sub" id="t-you-x"></div></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="viz-frame" id="cal"></div>
+      <p class="caption" id="cal-cap">Press <b>Fill one room</b> to see where the birthdays fall.</p>
+    </div>
+    <div id="chart"></div>
+  </div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>With 23 people a shared birthday is already more likely than not (0.507). With 60 it is almost certain (0.994).</li>
+    <li>Somebody sharing <em>your</em> birthday is a completely different event: with 60 people it happens only about 15% of
+        the time. A room of 60 has 1,770 pairs of people, but only 59 pairs involve you.</li>
+    <li>Both formulas come from the complement: it is much easier to count the rooms with <em>no</em> match.</li>
+    <li>Real birthdays are not quite uniform (more are in some months than others), which only makes matches more likely.</li>
+  </ul>
+</section>

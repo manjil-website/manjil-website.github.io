@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found · saikia.in</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<script>
+/* Web addresses on GitHub Pages are case-sensitive. Send saikia.in/sta102/bisem2026/ and similar
+   spellings to the real folder. Add new course folders to KNOWN, longest first. */
+(function () {
+  var KNOWN = ['/STA102/BiSem2026/', '/STA102/'];
+  var p = location.pathname;
+  if (p.slice(-1) !== '/' && p.split('/').pop().indexOf('.') === -1) p += '/';
+  var lp = p.toLowerCase();
+  for (var i = 0; i < KNOWN.length; i++) {
+    var k = KNOWN[i];
+    if (lp.indexOf(k.toLowerCase()) === 0) {
+      var fixed = k + lp.slice(k.length);
+      if (fixed !== location.pathname) location.replace(fixed + location.search + location.hash);
+      return;
+    }
+  }
+})();
+</script>
+<!-- Absolute paths: this page is shown for every missing address, at any depth. -->
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="/">Manjil Saikia <span>· Teaching</span></a>
+  <nav><a href="/#courses">Courses</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page" style="min-height:60vh">
+  <div class="eyebrow">404</div>
+  <h1>That page isn't here</h1>
+  <p class="lede">The address may have a typo, or the page may have moved. Addresses on this site are case-sensitive:
+    <code>STA102</code>, not <code>sta102</code>.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px">
+    <a class="btn" href="/">saikia.in home</a>
+    <a class="btn ghost" href="/STA102/BiSem2026/">STA102 simulations</a>
+  </div>
+</main>
+<footer class="site-foot">
+  <span>&copy; <span id="year">2026</span> Manjil Saikia · Ahmedabad University</span>
+  <a href="/">saikia.in</a>
+</footer>
+</body>
+</html>

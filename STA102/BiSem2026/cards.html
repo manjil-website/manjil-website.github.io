@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poker hands and card puzzles · STA102 simulations</title>
+<meta name="description" content="Deal thousands of hands and shuffle thousands of decks: full houses, flushes and the first ace.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sim.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="index.html">STA102 <span>· Probability simulations</span></a>
+  <nav><a href="index.html">All simulations</a><a href="../index.html">Course page</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page">
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>Poker hands and card puzzles</h1>
+<p class="lede">A five-card hand is one of C(52, 5) = 2,598,960 equally likely hands. Deal thousands of them and the
+frequencies line up with the counts &mdash; which is exactly why a full house beats a flush.</p>
+<p class="source">From the slides: <b>Counting</b> and <b>Probability and what happens when you learn something</b>.</p>
+<section class="panel">
+  <h2>Poker hands</h2>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" id="deal1">Deal one hand</button>
+      <button class="btn" type="button" data-deal="10000">Deal 10,000 hands</button>
+      <button class="btn" type="button" data-deal="100000">Deal 100,000</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="hand" id="hand"></div>
+  <p class="caption" id="hand-cap">Press <b>Deal one hand</b>.</p>
+  <div class="tiles"><div class="tile"><div class="tile-label">Hands dealt</div><div class="tile-value" id="t-n">0</div></div></div>
+  <div class="table-wrap"><table class="data" id="poker"></table></div>
+</section>
+<section class="panel">
+  <h2>Puzzles with aces</h2>
+  <p class="intro">Shuffle a deck thoroughly and look at it five different ways. Each row is a puzzle from the slides.</p>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" id="shuf1">Shuffle one deck</button>
+      <button class="btn" type="button" data-shuf="10000">Shuffle 10,000 decks</button>
+      <button class="btn" type="button" data-shuf="100000">Shuffle 100,000</button>
+      <button class="btn ghost" type="button" id="reset2">Reset</button>
+    </div>
+  </div>
+  <div class="hand" id="deck" style="gap:4px"></div>
+  <p class="caption" id="deck-cap">Press <b>Shuffle one deck</b> to see a deck turned over up to the first ace and the card after it.</p>
+  <div class="tiles"><div class="tile"><div class="tile-label">Decks shuffled</div><div class="tile-value" id="t-d">0</div></div></div>
+  <div class="table-wrap"><table class="data" id="aces"></table></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>The ranking of poker hands is a ranking by probability: the rarer hand wins. A straight flush turns up about once in
+        65,000 hands, so even 100,000 hands will show only one or two.</li>
+    <li>The card after the first ace is equally likely to be the ace of spades or the two of clubs: 1 in 52 each. The competing
+        arguments (&ldquo;the ace of spades may already be used&rdquo;, &ldquo;the two of clubs may already have gone&rdquo;)
+        cancel exactly.</li>
+    <li>The second card is an ace with probability 1/13, exactly like the first. An unseen card cannot change your information.</li>
+    <li>Only about one deal in ten puts exactly one ace in each of the four 13-card piles.</li>
+  </ul>
+</section>
+
+<nav class="prevnext" style="display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-size:0.92rem"><a href="dice-events.html">← Events on the two-dice grid</a><a href="lottery.html">The lottery →</a></nav>
+</main>
+<footer class="site-foot">STA102 Probability and Random Variables · Ahmedabad University · Monsoon 2026 ·
+<a href="../../index.html">saikia.in</a>. Every simulation runs in your browser; nothing is sent anywhere.</footer>
+<script>
+(function () {
+  var RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'], SUITS = ['♣', '♦', '♥', '♠'];
+  function cardHTML(c, mark) {
+    var r = c % 13, s = Math.floor(c / 13), red = s === 1 || s === 2;
+    return '<span class="playing-card' + (red ? ' red' : '') + (mark ? ' mark' : '') + '" aria-label="' + RANKS[r] + SUITS[s] + '"><span>' + RANKS[r] + '</span><span class="suit">' + SUITS[s] + '</span></span>';
+  }
+  /* ---------- poker ---------- */
+  var HANDS = [
+    ['Straight flush', 40], ['Four of a kind', 624], ['Full house', 3744], ['Flush', 5108], ['Straight', 10200],
+    ['Three of a kind', 54912], ['Two pair', 123552], ['One pair', 1098240], ['High card only', 1302540]];
+  var TOTAL = 2598960, counts = new Array(9).fill(0), n = 0, runner = new Sim.Runner(), deck = Sim.range(52);
+  function deal5() {                                 /* partial Fisher-Yates */
+    for (var i = 0; i < 5; i++) { var j = i + Math.floor(Math.random() * (52 - i)); var t = deck[i]; deck[i] = deck[j]; deck[j] = t; }
+    return deck.slice(0, 5);
+  }
+  function classify(h) {
+    var rc = new Array(13).fill(0), suit = Math.floor(h[0] / 13), flush = true, ranks = [];
+    h.forEach(function (c) { rc[c % 13]++; if (Math.floor(c / 13) !== suit) flush = false; });
+    var shape = rc.filter(function (x) { return x; }).sort(function (a, b) { return b - a; });
+    for (var r = 0; r < 13; r++) if (rc[r]) ranks.push(r);
+    var straight = shape.length === 5 && (ranks[4] - ranks[0] === 4 || (ranks[4] === 12 && ranks[3] === 3));
+    if (straight && flush) return 0;
+    if (shape[0] === 4) return 1;
+    if (shape[0] === 3 && shape[1] === 2) return 2;
+    if (flush) return 3;
+    if (straight) return 4;
+    if (shape[0] === 3) return 5;
+    if (shape[0] === 2 && shape[1] === 2) return 6;
+    if (shape[0] === 2) return 7;
+    return 8;
+  }
+  function drawPoker() {
+    Sim.set('t-n', Sim.int(n));
+    var rows = '<tr><th>hand</th><th>dealt</th><th>simulated</th><th>exact</th><th>exact odds</th></tr>';
+    HANDS.forEach(function (h, i) {
+      rows += '<tr><td>' + h[0] + '</td><td>' + Sim.int(counts[i]) + '</td><td>' + (n ? Sim.prob(counts[i] / n) : '—') + '</td><td>' +
+              Sim.prob(h[1] / TOTAL) + '</td><td>' + Sim.oneIn(h[1] / TOTAL) + '</td></tr>';
+    });
+    Sim.html('poker', rows);
+  }
+  document.getElementById('deal1').addEventListener('click', function () {
+    var h = deal5(), k = classify(h); counts[k]++; n++;
+    h.sort(function (a, b) { return (a % 13) - (b % 13); });
+    Sim.html('hand', h.map(function (c) { return cardHTML(c); }).join(''));
+    Sim.set('hand-cap', HANDS[k][0] + ' — exact probability ' + Sim.prob(HANDS[k][1] / TOTAL) + ' (' + Sim.oneIn(HANDS[k][1] / TOTAL) + ').');
+    drawPoker();
+  });
+  Sim.$$('[data-deal]').forEach(function (b) { b.addEventListener('click', function () {
+    var k = +b.dataset.deal; runner.run(k, function () { counts[classify(deal5())]++; n++; }, drawPoker, Sim.animated(k, 1.2)); }); });
+  document.getElementById('reset').addEventListener('click', function () { runner.cancel(); counts = new Array(9).fill(0); n = 0; Sim.html('hand', ''); drawPoker(); });
+  drawPoker();
+
+  /* ---------- ace puzzles ---------- */
+  var AS = 51, TC = 0;                               /* ace of spades = rank A (12) of spades (3); two of clubs = 0 */
+  var PUZ = [
+    ['The top two cards are both aces', 1 / 221, '4/52 × 3/51 = 1/221'],
+    ['The second card is an ace (the first is unseen)', 1 / 13, '1/13, the same as for the first card'],
+    ['The card after the first ace is the ace of spades', 1 / 52, '51!/52! = 1/52'],
+    ['The card after the first ace is the two of clubs', 1 / 52, '1/52 as well'],
+    ['Dealt into four piles of 13, each pile gets exactly one ace', 39 / 51 * 26 / 50 * 13 / 49, '(39/51)(26/50)(13/49)']];
+  var hits = new Array(5).fill(0), d = 0, r2 = new Sim.Runner(), full = Sim.range(52);
+  function isAce(c) { return c % 13 === 12; }
+  function check(dk) {
+    if (isAce(dk[0]) && isAce(dk[1])) hits[0]++;
+    if (isAce(dk[1])) hits[1]++;
+    var f = 0; while (!isAce(dk[f])) f++;
+    if (f < 51) { if (dk[f + 1] === AS) hits[2]++; if (dk[f + 1] === TC) hits[3]++; }
+    var piles = [0, 0, 0, 0]; for (var i = 0; i < 52; i++) if (isAce(dk[i])) piles[Math.floor(i / 13)]++;
+    if (piles[0] === 1 && piles[1] === 1 && piles[2] === 1 && piles[3] === 1) hits[4]++;
+    d++; return f;
+  }
+  function drawAces() {
+    Sim.set('t-d', Sim.int(d));
+    var rows = '<tr><th>event</th><th>times</th><th>simulated</th><th>exact</th><th>why</th></tr>';
+    PUZ.forEach(function (p, i) {
+      rows += '<tr><td>' + p[0] + '</td><td>' + Sim.int(hits[i]) + '</td><td>' + (d ? Sim.fix(hits[i] / d, 4) : '—') + '</td><td>' + Sim.fix(p[1], 4) + '</td><td>' + p[2] + '</td></tr>';
+    });
+    Sim.html('aces', rows);
+  }
+  document.getElementById('shuf1').addEventListener('click', function () {
+    Sim.shuffle(full); var f = check(full);
+    var show = full.slice(0, Math.min(52, f + 2));
+    Sim.html('deck', show.map(function (c, i) { return cardHTML(c, i === f || i === f + 1); }).join(''));
+    Sim.set('deck-cap', 'The first ace is card ' + (f + 1) + '; the next card is ' + RANKS[full[f + 1] % 13] + SUITS[Math.floor(full[f + 1] / 13)] + ' (both outlined).');
+    drawAces();
+  });
+  Sim.$$('[data-shuf]').forEach(function (b) { b.addEventListener('click', function () {
+    var k = +b.dataset.shuf; r2.run(k, function () { Sim.shuffle(full); check(full); }, drawAces, Sim.animated(k, 1.2)); }); });
+  document.getElementById('reset2').addEventListener('click', function () { r2.cancel(); hits = new Array(5).fill(0); d = 0; Sim.html('deck', ''); drawAces(); });
+  drawAces();
+})();
+
+</script>
+</body>
+</html>

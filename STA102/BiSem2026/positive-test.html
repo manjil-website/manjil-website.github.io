@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The positive test · STA102 simulations</title>
+<meta name="description" content="A 95%-accurate test for a rare disease, drawn as a town of 10,000 people.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sim.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="index.html">STA102 <span>· Probability simulations</span></a>
+  <nav><a href="index.html">All simulations</a><a href="../index.html">Course page</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page">
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>The positive test</h1>
+<p class="lede">A disease affects 1% of people. A test for it is 95% accurate both ways. You test positive. How worried
+should you be? Picture a town of 10,000 people and count.</p>
+<p class="source">From the slides: <b>Why should anyone care about chance?</b> and <b>Probability and what happens when you learn something</b>.</p>
+<section class="panel">
+  <div class="controls">
+    <label class="field">How common the disease is <input type="range" id="prev" min="0" max="8" step="1" value="3"><output id="prev-o"></output></label>
+    <label class="field">P(positive | sick) <input type="range" id="sens" min="50" max="100" step="1" value="95"><output id="sens-o"></output></label>
+    <label class="field">P(negative | healthy) <input type="range" id="spec" min="50" max="100" step="0.5" value="95"><output id="spec-o"></output></label>
+  </div>
+  <div class="controls">
+    <div id="view"></div>
+    <button class="btn" type="button" id="town">Test a random town</button>
+    <button class="btn ghost" type="button" id="expected">Back to expected counts</button>
+  </div>
+  <div class="tiles">
+    <div class="tile key"><div class="tile-label">P(sick | positive)</div><div class="tile-value" id="t-ppv">&mdash;</div><div class="tile-sub" id="t-ppv-x"></div></div>
+    <div class="tile"><div class="tile-label">Positive tests in the town</div><div class="tile-value" id="t-pos">&mdash;</div><div class="tile-sub" id="t-pos-x"></div></div>
+    <div class="tile"><div class="tile-label">P(healthy | negative)</div><div class="tile-value" id="t-npv">&mdash;</div></div>
+  </div>
+  <div class="viz-frame" id="grid"></div>
+  <div class="legend" id="legend" style="display:flex;flex-wrap:wrap;gap:6px 18px;font-size:0.86rem;color:var(--ink-2);margin:8px 2px"></div>
+  <div class="table-wrap"><table class="data" id="table"></table></div>
+  <p class="caption" id="mode-cap"></p>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>With the default numbers only about 16% of positive tests belong to sick people. The test is fine; the disease is rare,
+        and 5% of 9,900 healthy people (495 false alarms) swamps 95% of 100 sick people (95 true positives).</li>
+    <li>Make the disease common (10% or 20%) and a positive test becomes far more convincing. The prior matters as much as the test.</li>
+    <li>Push P(negative | healthy) to 99.5% and watch the false alarms collapse: for rare diseases, specificity is what counts.</li>
+    <li>The tile at the top is Bayes' theorem: P(sick | +) = P(+ | sick)P(sick) / [P(+ | sick)P(sick) + P(+ | healthy)P(healthy)].
+        Counting people in a town is the same calculation, and easier.</li>
+  </ul>
+</section>
+
+<nav class="prevnext" style="display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-size:0.92rem"><a href="monty-hall.html">← Monty Hall</a><a href="de-mere.html">De Méré and Galileo →</a></nav>
+</main>
+<footer class="site-foot">STA102 Probability and Random Variables · Ahmedabad University · Monsoon 2026 ·
+<a href="../../index.html">saikia.in</a>. Every simulation runs in your browser; nothing is sent anywhere.</footer>
+<script>
+(function () {
+  var PREV = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2], N = 10000;
+  var prev = 0.01, sens = 0.95, spec = 0.95, view = 'all', town = null;
+  function counts() {
+    if (town) return town;
+    var sick = Math.round(N * prev), healthy = N - sick;
+    var tp = Math.round(sick * sens), fp = Math.round(healthy * (1 - spec));
+    return { tp: tp, fn: sick - tp, fp: fp, tn: healthy - fp, simulated: false };
+  }
+  function simulateTown() {
+    var c = { tp: 0, fn: 0, fp: 0, tn: 0, simulated: true };
+    for (var i = 0; i < N; i++) {
+      if (Math.random() < prev) { if (Math.random() < sens) c.tp++; else c.fn++; }
+      else { if (Math.random() < 1 - spec) c.fp++; else c.tn++; }
+    }
+    return c;
+  }
+  var GROUPS = [
+    { key: 'tp', label: 'sick, tests positive', col: function () { return Sim.slot(2); } },
+    { key: 'fp', label: 'healthy, tests positive (false alarm)', col: function () { return Sim.slot(1); } },
+    { key: 'fn', label: 'sick, tests negative (missed)', col: function () { return Sim.slot(3); } },
+    { key: 'tn', label: 'healthy, tests negative', col: function () { return Sim.css('--neutral'); } }
+  ];
+  var grid = new Sim.Canvas('grid', function (w) { return view === 'all' ? Math.round((w - 12) / 125 * 80 + 12) : Math.max(220, Math.round(w * 0.36)); }, function (ctx, w, h) {
+    ctx.clearRect(0, 0, w, h); ctx.fillStyle = Sim.css('--surface'); ctx.fillRect(0, 0, w, h);
+    var c = counts(), list = [];
+    var groups = view === 'all' ? GROUPS : GROUPS.slice(0, 2);
+    groups.forEach(function (gp) { list.push([c[gp.key], gp.col()]); });
+    var total = list.reduce(function (a, b) { return a + b[0]; }, 0); if (!total) return;
+    var cols = view === 'all' ? 125 : Math.max(10, Math.ceil(Math.sqrt(total * (w / h))));
+    var rows = Math.ceil(total / cols), cell = Math.min((w - 12) / cols, (h - 12) / rows);
+    var ox = (w - cell * cols) / 2, oy = (h - cell * rows) / 2, idx = 0, gap = cell > 5 ? 1 : 0;
+    list.forEach(function (it) {
+      ctx.fillStyle = it[1];
+      for (var k = 0; k < it[0]; k++, idx++) {
+        var r = Math.floor(idx / cols), q = idx % cols;
+        if (view !== 'all' && cell > 6) { ctx.beginPath(); ctx.arc(ox + q * cell + cell / 2, oy + r * cell + cell / 2, cell * 0.4, 0, 7); ctx.fill(); }
+        else ctx.fillRect(ox + q * cell, oy + r * cell, cell - gap, cell - gap);
+      }
+    });
+  });
+  function draw() {
+    var c = counts(), pos = c.tp + c.fp, neg = c.fn + c.tn;
+    var ppvX = sens * prev / (sens * prev + (1 - spec) * (1 - prev)), npvX = spec * (1 - prev) / (spec * (1 - prev) + (1 - sens) * prev);
+    Sim.set('t-ppv', pos ? Sim.pct(c.tp / pos, 1) : '—');
+    Sim.set('t-ppv-x', c.simulated ? 'Bayes’ theorem: ' + Sim.pct(ppvX, 1) + ' in the long run' : 'Bayes’ theorem: ' + Sim.fix(ppvX, 4));
+    Sim.set('t-pos', Sim.int(pos)); Sim.set('t-pos-x', Sim.int(c.tp) + ' sick + ' + Sim.int(c.fp) + ' healthy');
+    Sim.set('t-npv', neg ? Sim.pct(c.tn / neg, 2) : '—');
+    var groups = view === 'all' ? GROUPS : GROUPS.slice(0, 2);
+    Sim.html('legend', groups.map(function (gp) {
+      return '<span><i style="display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;background:' + gp.col() + '"></i>' + gp.label + ': ' + Sim.int(c[gp.key]) + '</span>';
+    }).join(''));
+    Sim.html('table', '<tr><th></th><th>tests positive</th><th>tests negative</th><th>total</th></tr>' +
+      '<tr><td>sick</td><td>' + Sim.int(c.tp) + '</td><td>' + Sim.int(c.fn) + '</td><td>' + Sim.int(c.tp + c.fn) + '</td></tr>' +
+      '<tr><td>healthy</td><td>' + Sim.int(c.fp) + '</td><td>' + Sim.int(c.tn) + '</td><td>' + Sim.int(c.fp + c.tn) + '</td></tr>' +
+      '<tr class="hl"><td>total</td><td>' + Sim.int(pos) + '</td><td>' + Sim.int(neg) + '</td><td>' + Sim.int(N) + '</td></tr>');
+    Sim.set('mode-cap', c.simulated ? 'A randomly generated town: each person is sick with the chosen probability and then tested. Press again for another town.'
+                                    : 'Expected counts in a town of 10,000 (rounded to whole people).');
+    grid.resize();
+  }
+  Sim.bindRange('prev', 'prev-o', function (i) { return (100 * PREV[i]).toString().replace(/(\.\d*?)0+$/, '$1') + '%'; }, function (i) { prev = PREV[i]; town = null; draw(); });
+  Sim.bindRange('sens', 'sens-o', function (v) { return v + '%'; }, function (v) { sens = v / 100; town = null; draw(); });
+  Sim.bindRange('spec', 'spec-o', function (v) { return v + '%'; }, function (v) { spec = v / 100; town = null; draw(); });
+  Sim.segmented('view', [{ value: 'all', label: 'Everyone (10,000)' }, { value: 'pos', label: 'Only the positive tests' }], 'all',
+    function (v) { view = v; draw(); });
+  document.getElementById('town').addEventListener('click', function () { town = simulateTown(); draw(); });
+  document.getElementById('expected').addEventListener('click', function () { town = null; draw(); });
+  draw();
+})();
+
+</script>
+</body>
+</html>

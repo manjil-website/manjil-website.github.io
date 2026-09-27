@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The lottery · STA102 simulations</title>
+<meta name="description" content="Pick six numbers from 49 and play for as many weeks as you like.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sim.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="index.html">STA102 <span>· Probability simulations</span></a>
+  <nav><a href="index.html">All simulations</a><a href="../index.html">Course page</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page">
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>The lottery</h1>
+<p class="lede">Choose 6 numbers from 1 to 49. Each week 6 numbers are drawn. There are C(49, 6) = 13,983,816 possible
+draws, and only one of them is yours.</p>
+<p class="source">From the slides: <b>Counting</b>.</p>
+<section class="panel">
+  <h2>Your ticket</h2>
+  <p class="intro" id="pick-help">Click six numbers, or let the computer choose.</p>
+  <div id="board" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px;max-width:560px"></div>
+  <div class="controls" style="margin-top:12px">
+    <button class="btn ghost" type="button" id="quick">Quick pick</button>
+    <button class="btn ghost" type="button" id="clear">Clear</button>
+  </div>
+</section>
+<section class="panel">
+  <h2>Play</h2>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" id="draw1">Draw once</button>
+      <button class="btn" type="button" data-weeks="1000">Play 1,000 weeks</button>
+      <button class="btn" type="button" data-weeks="100000">Play 100,000 weeks</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="log" id="last"></div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Weeks played</div><div class="tile-value" id="t-w">0</div><div class="tile-sub" id="t-y"></div></div>
+    <div class="tile"><div class="tile-label">Best result so far</div><div class="tile-value" id="t-best">&mdash;</div></div>
+    <div class="tile key"><div class="tile-label">Jackpots</div><div class="tile-value" id="t-jack">0</div><div class="tile-sub">expected once every 13,983,816 weeks</div></div>
+  </div>
+  <div id="chart"></div>
+  <div class="table-wrap"><table class="data" id="table"></table></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>The chance of matching exactly <i>k</i> numbers is C(6, <i>k</i>) C(43, 6 &minus; <i>k</i>) / C(49, 6): choose which of your
+        numbers were drawn, then choose the rest from the numbers you did not pick.</li>
+    <li>About 44% of tickets match nothing at all, and matching three or more happens less than 2% of the time.</li>
+    <li>At one ticket a week, a jackpot is expected about once every 268,000 years. 100,000 simulated weeks is under 2,000 years
+        of play &mdash; almost certainly not enough.</li>
+  </ul>
+</section>
+
+<nav class="prevnext" style="display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-size:0.92rem"><a href="cards.html">← Poker hands and card puzzles</a><a href="conditioning.html">Conditioning by throwing runs away →</a></nav>
+</main>
+<footer class="site-foot">STA102 Probability and Random Variables · Ahmedabad University · Monsoon 2026 ·
+<a href="../../index.html">saikia.in</a>. Every simulation runs in your browser; nothing is sent anywhere.</footer>
+<script>
+(function () {
+  var mine = [], runner = new Sim.Runner(), counts = new Array(7).fill(0), weeks = 0, jack = 0, best = -1;
+  var C49 = Sim.choose(49, 6), EX = []; for (var k = 0; k <= 6; k++) EX.push(Sim.choose(6, k) * Sim.choose(43, 6 - k) / C49);
+  var board = document.getElementById('board'), cells = [];
+  for (var i = 1; i <= 49; i++) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'pick'; b.textContent = i;
+    b.style.cssText = 'height:38px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--ink-1);font:inherit;font-weight:600;cursor:pointer';
+    (function (n) { b.addEventListener('click', function () { toggle(n); }); })(i);
+    board.appendChild(b); cells.push(b);
+  }
+  function paint() {
+    cells.forEach(function (b, i) { var on = mine.indexOf(i + 1) >= 0;
+      b.style.background = on ? 'var(--s1)' : 'var(--surface)'; b.style.color = on ? '#fff' : 'var(--ink-1)'; b.setAttribute('aria-pressed', on); });
+    Sim.set('pick-help', mine.length === 6 ? 'Your numbers: ' + mine.slice().sort(function (a, b) { return a - b; }).join(', ') + '.' : 'Choose ' + (6 - mine.length) + ' more number' + (6 - mine.length === 1 ? '' : 's') + ', or press Quick pick.');
+    Sim.$$('#draw1,[data-weeks]').forEach(function (x) { x.disabled = mine.length !== 6; });
+  }
+  function toggle(n) { var at = mine.indexOf(n); if (at >= 0) mine.splice(at, 1); else if (mine.length < 6) mine.push(n); reset(); paint(); }
+  function quick() { mine = Sim.shuffle(Sim.range(49).map(function (x) { return x + 1; })).slice(0, 6); reset(); paint(); }
+  var pool = Sim.range(49).map(function (x) { return x + 1; });
+  function drawSix() { for (var i = 0; i < 6; i++) { var j = i + Math.floor(Math.random() * (49 - i)); var t = pool[i]; pool[i] = pool[j]; pool[j] = t; } return pool.slice(0, 6); }
+  var mineSet = new Uint8Array(50);
+  function week() {
+    var d = drawSix(), m = 0; for (var i = 0; i < 6; i++) if (mineSet[d[i]]) m++;
+    counts[m]++; weeks++; if (m === 6) jack++; if (m > best) best = m; return { d: d, m: m };
+  }
+  var chart = new Sim.BarChart('chart', { height: 260, xLabel: 'numbers matched', yLabel: 'fraction of weeks', table: false,
+    valFmt: function (v) { return Sim.prob(v); } });
+  function draw() {
+    chart.set({ categories: [0, 1, 2, 3, 4, 5, 6], series: [{ name: 'simulated', slot: 1, values: counts.map(function (c) { return weeks ? c / weeks : 0; }) }],
+                exact: { name: 'exact', values: EX } });
+    Sim.set('t-w', Sim.int(weeks)); Sim.set('t-y', weeks ? '≈ ' + Sim.int(weeks / 52) + ' years of weekly play' : '');
+    Sim.set('t-best', best < 0 ? '—' : best + ' of 6'); Sim.set('t-jack', Sim.int(jack));
+    var rows = '<tr><th>matched</th><th>weeks</th><th>simulated</th><th>exact</th><th>exact odds</th></tr>';
+    for (var k = 0; k <= 6; k++) rows += '<tr><td>' + k + '</td><td>' + Sim.int(counts[k]) + '</td><td>' + (weeks ? Sim.prob(counts[k] / weeks) : '—') + '</td><td>' + Sim.prob(EX[k]) + '</td><td>' + Sim.oneIn(EX[k]) + '</td></tr>';
+    Sim.html('table', rows);
+  }
+  function reset() { runner.cancel(); counts = new Array(7).fill(0); weeks = 0; jack = 0; best = -1; mineSet = new Uint8Array(50); mine.forEach(function (n) { mineSet[n] = 1; }); Sim.html('last', ''); draw(); }
+  document.getElementById('draw1').addEventListener('click', function () {
+    var r = week();
+    Sim.html('last', r.d.slice().sort(function (a, b) { return a - b; }).map(function (x) { return '<span class="' + (mineSet[x] ? 'kept fav' : '') + '">' + x + '</span>'; }).join('') +
+      '<span style="border:0">&rarr; ' + r.m + ' matched</span>');
+    draw();
+  });
+  Sim.$$('[data-weeks]').forEach(function (b) { b.addEventListener('click', function () { var k = +b.dataset.weeks; runner.run(k, week, draw, Sim.animated(k, 1.4)); }); });
+  document.getElementById('reset').addEventListener('click', reset);
+  document.getElementById('quick').addEventListener('click', quick);
+  document.getElementById('clear').addEventListener('click', function () { mine = []; reset(); paint(); });
+  quick();
+})();
+
+</script>
+</body>
+</html>

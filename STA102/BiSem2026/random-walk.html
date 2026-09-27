@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Random walks · STA102 simulations</title>
+<meta name="description" content="Step left or right at random. How far do you get after n steps? About √n.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sim.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="index.html">STA102 <span>· Probability simulations</span></a>
+  <nav><a href="index.html">All simulations</a><a href="../index.html">Course page</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page">
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>Random walks</h1>
+<p class="lede">Start at 0. At every step move one unit up or down, each with probability 1/2. The same rule
+produces wildly different lives &mdash; and yet the typical distance from the start after <i>n</i> steps is always
+about &radic;<i>n</i>.</p>
+<p class="source">From the slides: <b>Why should anyone care about chance?</b>.</p>
+<section class="panel">
+  <h2>Some walks</h2>
+  <div class="controls">
+    <label class="field">Walks <select id="k"><option>1</option><option selected>3</option><option>4</option></select></label>
+    <label class="field">Steps <input type="range" id="steps" min="50" max="2000" step="50" value="300"><output id="steps-o"></output></label>
+    <button class="btn" type="button" id="new">New walks</button>
+    <label class="check"><input type="checkbox" id="sq" checked> show &plusmn;&radic;n</label>
+  </div>
+  <div id="walks"></div>
+</section>
+<section class="panel">
+  <h2>How far after <i>n</i> steps?</h2>
+  <p class="intro">Run thousands of walks and measure, at every step, the root-mean-square distance from the start:
+  the square root of the average of (position)<sup>2</sup>. Then look at where the walks finish.</p>
+  <div class="controls">
+    <label class="field">Steps <input type="range" id="N" min="20" max="200" step="10" value="100"><output id="N-o"></output></label>
+    <div class="group">
+      <button class="btn" type="button" data-many="1000">Run 1,000 walks</button>
+      <button class="btn" type="button" data-many="10000">Run 10,000</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Walks run</div><div class="tile-value" id="t-m">0</div></div>
+    <div class="tile"><div class="tile-label">Root-mean-square distance at the end</div><div class="tile-value" id="t-rms">&mdash;</div><div class="tile-sub" id="t-rms-x"></div></div>
+    <div class="tile"><div class="tile-label">Walks that finished exactly at 0</div><div class="tile-value" id="t-zero">&mdash;</div><div class="tile-sub" id="t-zero-x"></div></div>
+  </div>
+  <div class="two-col">
+    <div id="rms"></div>
+    <div id="final"></div>
+  </div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>Individual walks wander far outside &plusmn;&radic;n now and then, and spend long stretches on one side of zero.
+        Long leads are normal in a fair game.</li>
+    <li>The root-mean-square distance tracks &radic;n exactly. The proof needs nothing but variance: each step adds
+        variance 1, so after <i>n</i> steps the variance is <i>n</i>.</li>
+    <li>The finishing positions form the same bell as the Galton board. It is the same experiment, sideways.</li>
+  </ul>
+</section>
+
+<nav class="prevnext" style="display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-size:0.92rem"><a href="monte-carlo-pi.html">← Estimating π with darts</a><a href="birthday.html">The birthday problem →</a></nav>
+</main>
+<footer class="site-foot">STA102 Probability and Random Variables · Ahmedabad University · Monsoon 2026 ·
+<a href="../../index.html">saikia.in</a>. Every simulation runs in your browser; nothing is sent anywhere.</footer>
+<script>
+(function () {
+  var walks = new Sim.LineChart('walks', { height: 320, xLabel: 'step', yLabel: 'position',
+    tipX: function (x) { return 'step ' + Sim.int(x); }, tipY: function (v) { return String(v); } });
+  function newWalks() {
+    var k = +document.getElementById('k').value, n = +document.getElementById('steps').value, series = [];
+    for (var j = 0; j < k; j++) {
+      var s = 0, pts = [[0, 0]];
+      for (var i = 1; i <= n; i++) { s += Math.random() < 0.5 ? 1 : -1; pts.push([i, s]); }
+      series.push({ name: 'Walk ' + (j + 1), slot: j + 1, points: pts });
+    }
+    if (document.getElementById('sq').checked) {
+      var up = [], lo = []; for (var t = 0; t <= n; t += Math.max(1, Math.floor(n / 200))) { up.push([t, Math.sqrt(t)]); lo.push([t, -Math.sqrt(t)]); }
+      series.push({ name: '±√n (typical distance)', ref: true, points: up }); series.push({ ref: true, noLegend: true, points: lo });
+    }
+    walks.o.xMin = 0; walks.o.xMax = n; walks.set(series, [{ y: 0 }]);
+  }
+  Sim.bindRange('steps', 'steps-o', null, newWalks);
+  document.getElementById('new').addEventListener('click', newWalks);
+  document.getElementById('k').addEventListener('change', newWalks);
+  document.getElementById('sq').addEventListener('change', newWalks);
+  newWalks();
+
+  var N = 100, M = 0, sumsq = [], finals = {}, runner = new Sim.Runner();
+  var rms = new Sim.LineChart('rms', { height: 300, xLabel: 'step n', yLabel: 'distance from the start', title: 'Root-mean-square distance',
+    tipX: function (x) { return 'step ' + x; }, tipY: function (v) { return Sim.fix(v, 3); } });
+  var fin = new Sim.BarChart('final', { height: 300, xLabel: 'final position', yLabel: 'fraction of walks', title: 'Where the walks finish',
+    valFmt: function (v) { return Sim.fix(v, 4); }, labelEvery: function (c) { return c % 10 === 0; } });
+  function reset() { runner.cancel(); M = 0; sumsq = new Float64Array(N + 1); finals = {}; draw(); }
+  function draw() {
+    var sim = [], th = [];
+    for (var i = 0; i <= N; i++) { th.push([i, Math.sqrt(i)]); if (M) sim.push([i, Math.sqrt(sumsq[i] / M)]); }
+    rms.o.xMin = 0; rms.o.xMax = N; rms.o.yMin = 0;
+    rms.set([{ name: 'simulated', slot: 1, points: sim }, { name: '√n', ref: true, points: th }]);
+    var cats = [], vals = [], ex = [];
+    var R = Math.min(N, 2 * Math.ceil(2 * Math.sqrt(N)));       /* show about four standard deviations */
+    fin.o.labelEvery = function (c) { return c % (R > 40 ? 20 : 10) === 0; };
+    for (var x = -R; x <= R; x += 2) { cats.push(x); vals.push(M ? (finals[x] || 0) / M : 0); ex.push(Sim.choose(N, (N + x) / 2) / Math.pow(2, N)); }
+    fin.set({ categories: cats, series: [{ name: 'simulated', slot: 1, values: vals }], exact: { name: 'exact', values: ex } });
+    Sim.set('t-m', Sim.int(M));
+    Sim.set('t-rms', M ? Sim.fix(Math.sqrt(sumsq[N] / M), 2) : '—'); Sim.set('t-rms-x', '√' + N + ' = ' + Sim.fix(Math.sqrt(N), 2));
+    Sim.set('t-zero', M ? Sim.pct((finals[0] || 0) / M, 2) : '—');
+    Sim.set('t-zero-x', 'exact C(' + N + ',' + (N / 2) + ')/2' + Sim.sup(N) + ' = ' + Sim.pct(Sim.choose(N, N / 2) / Math.pow(2, N), 2));
+  }
+  function many(k) {
+    runner.run(k, function () {
+      var s = 0; for (var i = 1; i <= N; i++) { s += Math.random() < 0.5 ? 1 : -1; sumsq[i] += s * s; }
+      finals[s] = (finals[s] || 0) + 1; M++;
+    }, draw, Sim.animated(k, 1.2));
+  }
+  Sim.bindRange('N', 'N-o', null, function (v) { N = v; reset(); });
+  Sim.$$('[data-many]').forEach(function (b) { b.addEventListener('click', function () { many(+b.dataset.many); }); });
+  document.getElementById('reset').addEventListener('click', reset);
+  reset();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>De M&eacute;r&eacute; and Galileo</h1>
+<p class="lede">Two gambling puzzles from the 1600s where the gamblers' instincts, sharpened by thousands of games,
+noticed differences of about one or two percentage points.</p>
+{{SOURCE}}
+<section class="panel">
+  <h2>The Chevalier's two bets (1654)</h2>
+  <p class="intro"><b>Bet A:</b> roll one die four times; win if at least one six appears.
+  <b>Bet B:</b> roll two dice 24 times; win if at least one double six appears.
+  The Chevalier reasoned that 4 &times; 1/6 = 24 &times; 1/36 = 2/3, so the bets should be the same. He kept winning on A
+  and losing on B.</p>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-play="1">Play each bet once</button>
+      <button class="btn" type="button" data-play="1000">Play 1,000 of each</button>
+      <button class="btn" type="button" data-play="10000">Play 10,000 of each</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="two-col">
+    <div><div class="tile-label" style="margin-bottom:4px">Last game of Bet A</div><div class="dice-row" id="lastA"></div><div class="caption" id="lastA-c"></div></div>
+    <div><div class="tile-label" style="margin-bottom:4px">Last game of Bet B</div><div class="caption" id="lastB" style="margin-top:0"></div></div>
+  </div>
+  <div class="tiles" style="margin-top:12px">
+    <div class="tile"><div class="tile-label">Games of each bet</div><div class="tile-value" id="t-g">0</div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s1)"></span>Bet A wins</div><div class="tile-value" id="t-a">&mdash;</div><div class="tile-sub">exact 1 &minus; (5/6)<sup>4</sup> = 0.5177</div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s2)"></span>Bet B wins</div><div class="tile-value" id="t-b">&mdash;</div><div class="tile-sub">exact 1 &minus; (35/36)<sup>24</sup> = 0.4914</div></div>
+    <div class="tile"><div class="tile-label">Chevalier's profit at &#8377;1 a game</div><div class="tile-value" id="t-prof">&mdash;</div><div class="tile-sub">Bet A, Bet B</div></div>
+  </div>
+  <div id="chart"></div>
+</section>
+<section class="panel">
+  <h2>Galileo's three dice</h2>
+  <p class="intro">With three dice, a total of 9 and a total of 10 can each be made in six ways (1+2+6, 1+3+5, &hellip;).
+  Yet Italian gamblers noticed that 10 turns up a little more often. Counting the 216 <em>ordered</em> outcomes gives
+  P(9) = 25/216 and P(10) = 27/216.</p>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-throw="1000">Throw 1,000 times</button>
+      <button class="btn" type="button" data-throw="10000">Throw 10,000</button>
+      <button class="btn" type="button" data-throw="100000">Throw 100,000</button>
+      <button class="btn ghost" type="button" id="g-reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Throws</div><div class="tile-value" id="g-n">0</div></div>
+    <div class="tile"><div class="tile-label">Total 9</div><div class="tile-value" id="g-9">&mdash;</div><div class="tile-sub">exact 25/216 = 0.1157</div></div>
+    <div class="tile key"><div class="tile-label">Total 10</div><div class="tile-value" id="g-10">&mdash;</div><div class="tile-sub">exact 27/216 = 0.1250</div></div>
+    <div class="tile"><div class="tile-label">10s minus 9s so far</div><div class="tile-value" id="g-d">&mdash;</div><div class="tile-sub" id="g-d-x"></div></div>
+  </div>
+  <div id="gchart"></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>Bet A is a small winner and Bet B a small loser. Early on either can look better; it takes a few thousand games for the
+        gap of 2.6 percentage points to show clearly. De M&eacute;r&eacute; had played enough to feel it.</li>
+    <li>&ldquo;Four chances of 1/6&rdquo; is not 4/6: the chances overlap. The complement gives the right answer:
+        P(no six in four rolls) = (5/6)<sup>4</sup>.</li>
+    <li>Galileo's point: the six &ldquo;ways&rdquo; to make 9 are not equally likely. 1+2+6 can come up in 3! = 6 orders, 3+3+3 in only one.
+        Always count outcomes that really are equally likely.</li>
+  </ul>
+</section>

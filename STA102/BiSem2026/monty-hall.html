@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monty Hall · STA102 simulations</title>
+<meta name="description" content="Play the game yourself, then simulate thousands of games with 3 to 100 doors.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sim.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="index.html">STA102 <span>· Probability simulations</span></a>
+  <nav><a href="index.html">All simulations</a><a href="../index.html">Course page</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page">
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>Monty Hall</h1>
+<p class="lede">A car is behind one of three doors and goats are behind the other two. You pick a door. Monty, who
+knows where the car is, opens another door to show a goat and offers you the chance to switch. Should you?</p>
+<p class="source">From the slides: <b>Why should anyone care about chance?</b> and <b>Probability and what happens when you learn something</b>.</p>
+<section class="panel">
+  <h2>Play it yourself</h2>
+  <div class="doors" id="doors"></div>
+  <p id="msg" style="min-height:1.6em;font-weight:550"></p>
+  <div class="controls" id="choice" hidden>
+    <button class="btn" type="button" id="stay">Stay</button>
+    <button class="btn" type="button" id="switch">Switch</button>
+  </div>
+  <div class="controls"><button class="btn ghost" type="button" id="again">New game</button>
+    <button class="btn ghost" type="button" id="clear">Clear my record</button></div>
+  <div class="table-wrap"><table class="data" id="record"></table></div>
+</section>
+<section class="panel">
+  <h2>Simulate thousands of games</h2>
+  <div class="controls">
+    <label class="field">Doors <input type="range" id="n" min="3" max="100" value="3"><output id="n-o"></output></label>
+    <label class="check"><input type="checkbox" id="ignorant"> Monty doesn't know where the car is</label>
+  </div>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-games="1000">Play 1,000 games</button>
+      <button class="btn" type="button" data-games="10000">Play 10,000</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <p class="intro" id="rules"></p>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Games that count</div><div class="tile-value" id="t-g">0</div><div class="tile-sub" id="t-drop"></div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s1)"></span>Win rate if you stay</div><div class="tile-value" id="t-stay">&mdash;</div><div class="tile-sub" id="t-stay-x"></div></div>
+    <div class="tile key"><div class="tile-label"><span class="swatch" style="background:var(--s2)"></span>Win rate if you switch</div><div class="tile-value" id="t-sw">&mdash;</div><div class="tile-sub" id="t-sw-x"></div></div>
+  </div>
+  <div id="chart"></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>Staying wins exactly when your first pick was right: 1 time in 3. Switching wins in the other 2.</li>
+    <li>Slide to 100 doors. Monty opens 98 goat doors and leaves one closed. Your door still has its original 1/100; the
+        door he pointedly left shut has 99/100.</li>
+    <li>Now tick <b>Monty doesn't know</b>. He opens doors at random, and the games where he accidentally reveals the car are
+        thrown away. Among the games that survive, staying and switching are equally good. Monty's <em>knowledge</em> is what
+        makes switching better &mdash; the information you get depends on how it was produced.</li>
+  </ul>
+</section>
+
+<nav class="prevnext" style="display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-size:0.92rem"><a href="birthday.html">← The birthday problem</a><a href="positive-test.html">The positive test →</a></nav>
+</main>
+<footer class="site-foot">STA102 Probability and Random Variables · Ahmedabad University · Monsoon 2026 ·
+<a href="../../index.html">saikia.in</a>. Every simulation runs in your browser; nothing is sent anywhere.</footer>
+<script>
+(function () {
+  /* ---------- the interactive game ---------- */
+  var st, rec = { stay: [0, 0], sw: [0, 0] };
+  var doorsEl = document.getElementById('doors');
+  doorsEl.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 10px';
+  function newGame() {
+    st = { car: Sim.randInt(0, 2), pick: null, open: null, phase: 'pick', final: null };
+    document.getElementById('choice').hidden = true;
+    Sim.set('msg', 'Pick a door.'); drawDoors();
+  }
+  function drawDoors() {
+    doorsEl.innerHTML = '';
+    for (var d = 0; d < 3; d++) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pick';
+      var opened = (st.open === d) || st.phase === 'done';
+      var inside = d === st.car ? 'CAR' : 'goat';
+      b.style.cssText = 'width:110px;height:150px;border-radius:10px;font:inherit;font-weight:650;cursor:pointer;' +
+        'border:2px solid ' + (d === st.pick ? 'var(--s1)' : 'var(--border)') + ';' +
+        'background:' + (opened ? 'var(--surface-2)' : 'var(--s1-wash)') + ';color:var(--ink-1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px';
+      b.innerHTML = '<span style="font-size:0.8rem;color:var(--ink-2)">door ' + (d + 1) + '</span>' +
+        '<span style="font-size:1.25rem' + (opened && d === st.car ? ';color:var(--s2)' : '') + '">' + (opened ? inside : '?') + '</span>' +
+        (d === st.pick ? '<span style="font-size:0.75rem;color:var(--ink-2)">' + (st.phase === 'done' ? 'your final door' : 'your pick') + '</span>' : '');
+      b.disabled = st.phase !== 'pick';
+      (function (dd) { b.addEventListener('click', function () { choose(dd); }); })(d);
+      doorsEl.appendChild(b);
+    }
+  }
+  function choose(d) {
+    st.pick = d;
+    var others = [0, 1, 2].filter(function (x) { return x !== d && x !== st.car; });
+    st.open = others[Math.floor(Math.random() * others.length)];
+    st.phase = 'decide';
+    var other = [0, 1, 2].filter(function (x) { return x !== d && x !== st.open; })[0];
+    Sim.set('msg', 'Monty opens door ' + (st.open + 1) + ': a goat. Stay with door ' + (d + 1) + ' or switch to door ' + (other + 1) + '?');
+    document.getElementById('choice').hidden = false; drawDoors();
+  }
+  function decide(sw) {
+    if (st.phase !== 'decide') return;
+    var other = [0, 1, 2].filter(function (x) { return x !== st.pick && x !== st.open; })[0];
+    if (sw) st.pick = other;
+    var win = st.pick === st.car; st.phase = 'done';
+    var r = sw ? rec.sw : rec.stay; r[0]++; if (win) r[1]++;
+    Sim.set('msg', (win ? 'You win the car!' : 'A goat. The car was behind door ' + (st.car + 1) + '.') + ' Press New game to play again.');
+    document.getElementById('choice').hidden = true; drawDoors(); drawRecord();
+  }
+  function drawRecord() {
+    function row(name, r, ex) { return '<tr><td>' + name + '</td><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + (r[0] ? Sim.pct(r[1] / r[0], 0) : '—') + '</td><td>' + ex + '</td></tr>'; }
+    Sim.html('record', '<tr><th>your strategy</th><th>games</th><th>wins</th><th>win rate</th><th>in the long run</th></tr>' +
+      row('stayed', rec.stay, '1/3') + row('switched', rec.sw, '2/3'));
+  }
+  document.getElementById('stay').addEventListener('click', function () { decide(false); });
+  document.getElementById('switch').addEventListener('click', function () { decide(true); });
+  document.getElementById('again').addEventListener('click', newGame);
+  document.getElementById('clear').addEventListener('click', function () { rec = { stay: [0, 0], sw: [0, 0] }; drawRecord(); });
+  newGame(); drawRecord();
+
+  /* ---------- simulation ---------- */
+  var n = 3, ign = false, g = 0, dropped = 0, stayW = 0, swW = 0, trS = new Sim.Trace(600), trW = new Sim.Trace(600), runner = new Sim.Runner();
+  var chart = new Sim.LineChart('chart', { height: 300, xLabel: 'games that count', yMin: 0, yMax: 1, xLog: true, xMin: 1,
+    tipX: function (x) { return 'after ' + Sim.int(x) + ' games'; }, tipY: function (v) { return Sim.fix(v, 3); } });
+  function exact() { return ign ? [0.5, 0.5] : [1 / n, (n - 1) / n]; }
+  function reset() { runner.cancel(); g = 0; dropped = 0; stayW = 0; swW = 0; trS = new Sim.Trace(600); trW = new Sim.Trace(600); draw(); }
+  function draw() {
+    var ex = exact();
+    Sim.set('rules', ign ? 'Monty opens ' + (n - 2) + ' of the other doors at random. If the car is among them, the game is thrown away.'
+                         : 'Monty opens ' + (n - 2) + ' of the other ' + (n - 1) + ' doors, always showing goats, and leaves one closed for you to switch to.');
+    chart.o.xMax = Math.max(10, g);
+    chart.set([{ name: 'stay', slot: 1, points: trS.points(g, g ? stayW / g : undefined).filter(function (p) { return p[1] !== undefined; }) },
+               { name: 'switch', slot: 2, points: trW.points(g, g ? swW / g : undefined).filter(function (p) { return p[1] !== undefined; }) }],
+              ign ? [{ y: 0.5, label: 'exact 1/2 for both' }] :
+                    [{ y: ex[0], label: 'stay: exact 1/' + n, below: true }, { y: ex[1], label: 'switch: exact ' + (n - 1) + '/' + n }]);
+    Sim.set('t-g', Sim.int(g)); Sim.set('t-drop', ign ? Sim.int(dropped) + ' thrown away (car revealed)' : '');
+    Sim.set('t-stay', g ? Sim.fix(stayW / g, 3) : '—'); Sim.set('t-sw', g ? Sim.fix(swW / g, 3) : '—');
+    Sim.set('t-stay-x', 'exact ' + (ign ? '1/2' : '1/' + n) + ' = ' + Sim.fix(ex[0], 3));
+    Sim.set('t-sw-x', 'exact ' + (ign ? '1/2' : (n - 1) + '/' + n) + ' = ' + Sim.fix(ex[1], 3));
+  }
+  function game() {
+    var car = Math.floor(Math.random() * n), pick = Math.floor(Math.random() * n), left;
+    if (!ign) {
+      if (pick !== car) left = car;
+      else { left = Math.floor(Math.random() * (n - 1)); if (left >= pick) left++; }
+    } else {
+      left = Math.floor(Math.random() * (n - 1)); if (left >= pick) left++;
+      if (car !== pick && car !== left) { dropped++; return; }        /* Monty revealed the car */
+    }
+    g++; if (pick === car) stayW++; if (left === car) swW++;
+    trS.push(g, stayW / g); trW.push(g, swW / g);
+  }
+  Sim.$$('[data-games]').forEach(function (b) { b.addEventListener('click', function () {
+    var k = +b.dataset.games; runner.run(k, game, draw, Sim.animated(k, 1.4)); }); });
+  document.getElementById('reset').addEventListener('click', reset);
+  document.getElementById('ignorant').addEventListener('change', function (e) { ign = e.target.checked; reset(); });
+  Sim.bindRange('n', 'n-o', null, function (v) { n = v; reset(); });
+  reset();
+})();
+
+</script>
+</body>
+</html>

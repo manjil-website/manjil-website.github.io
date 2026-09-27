@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The long run · STA102 simulations</title>
+<meta name="description" content="Toss a coin, roll a die or bet on red thousands of times and watch the running fraction settle.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sim.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="index.html">STA102 <span>· Probability simulations</span></a>
+  <nav><a href="index.html">All simulations</a><a href="../index.html">Course page</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page">
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>The long run</h1>
+<p class="lede">Toss a coin again and again. The fraction of heads jumps around wildly at first, then settles
+down near 1/2. That settling is what a probability means as a long-run frequency.</p>
+<p class="source">From the slides: <b>Why should anyone care about chance?</b> and <b>Probability and what happens when you learn something</b>.</p>
+<section class="panel">
+  <div class="controls">
+    <div id="mode"></div>
+    <label class="field">Runs <select id="runs"><option>1</option><option selected>3</option><option>5</option></select></label>
+  </div>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-add="100">+100 trials</button>
+      <button class="btn" type="button" data-add="1000">+1,000</button>
+      <button class="btn" type="button" data-add="10000">+10,000</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+    <div class="sep"></div>
+    <label class="check"><input type="checkbox" id="logx" checked> log scale for trials</label>
+    <label class="check"><input type="checkbox" id="band"> show the typical range</label>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Trials in each run</div><div class="tile-value" id="t-n">0</div></div>
+    <div class="tile"><div class="tile-label" id="t-r1-label">Run 1</div><div class="tile-value" id="t-r1">&mdash;</div></div>
+    <div class="tile"><div class="tile-label">Farthest run from the exact value</div><div class="tile-value" id="t-far">&mdash;</div></div>
+    <div class="tile key"><div class="tile-label">Exact value</div><div class="tile-value" id="t-exact">&mdash;</div><div class="tile-sub" id="t-exact-sub"></div></div>
+  </div>
+  <div id="chart"></div>
+  <p class="caption" id="cap"></p>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>Early on, different runs disagree a lot. After thousands of trials they all sit close to the exact value.</li>
+    <li>The runs never stop wobbling; they wobble <em>less</em>. Tick <b>show the typical range</b>: the band shrinks like
+        1/&radic;n, so a hundred times as many trials gives answers about ten times as precise.</li>
+    <li>In the roulette mode the running average is your winnings per &#8377;1 bet. It settles at &minus;1/37 &asymp; &minus;0.027:
+        the green zero is the casino's whole business model.</li>
+    <li>Making this settling precise is the <em>law of large numbers</em>, proved near the end of the course.</li>
+  </ul>
+</section>
+
+<nav class="prevnext" style="display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-size:0.92rem"><span></span><a href="galton.html">Order out of chaos →</a></nav>
+</main>
+<footer class="site-foot">STA102 Probability and Random Variables · Ahmedabad University · Monsoon 2026 ·
+<a href="../../index.html">saikia.in</a>. Every simulation runs in your browser; nothing is sent anywhere.</footer>
+<script>
+(function () {
+  var MODES = {
+    coin:     { label: 'Coin: heads', y: 'fraction of heads', p: 0.5, exact: 0.5, exactTxt: '1/2 = 0.5000', sd: 0.5,
+                trial: function () { return Math.random() < 0.5 ? 1 : 0; }, yMin: 0, yMax: 1,
+                cap: 'Each run is a separate fair coin. The dashed line is the exact probability 1/2.' },
+    die:      { label: 'Die: sixes', y: 'fraction of sixes', exact: 1 / 6, exactTxt: '1/6 ≈ 0.1667', sd: Math.sqrt(5) / 6,
+                trial: function () { return Math.random() < 1 / 6 ? 1 : 0; }, yMin: 0, yMax: 0.6,
+                cap: 'Each run is a separate fair die. The dashed line is 1/6.' },
+    roulette: { label: 'Roulette: ₹1 on red', y: 'average winnings per bet (₹)', exact: -1 / 37, exactTxt: '−1/37 ≈ −0.0270',
+                sd: Math.sqrt(1 - 1 / (37 * 37)),
+                trial: function () { return Math.random() < 18 / 37 ? 1 : -1; }, yMin: -0.6, yMax: 0.6,
+                cap: 'Win ₹1 with probability 18/37, lose ₹1 with probability 19/37. The dashed line is the house edge, −1/37 per bet.' }
+  };
+  var mode = 'coin', runs = [], runner = new Sim.Runner();
+  var chart = new Sim.LineChart('chart', { height: 320, xLabel: 'number of trials', xLog: true,
+    tipX: function (x) { return 'after ' + Sim.int(x) + ' trials'; }, tipY: function (v) { return Sim.fix(v, 4); } });
+
+  function reset() {
+    runner.cancel();
+    var k = +document.getElementById('runs').value; runs = [];
+    for (var i = 0; i < k; i++) runs.push({ sum: 0, n: 0, trace: new Sim.Trace(700) });
+    draw();
+  }
+  function draw() {
+    var M = MODES[mode], logx = document.getElementById('logx').checked;
+    chart.o.xLog = logx; chart.o.yMin = M.yMin; chart.o.yMax = M.yMax; chart.o.yLabel = M.y;
+    var n = runs.length ? runs[0].n : 0;
+    chart.o.xMin = logx ? 1 : 0; chart.o.xMax = Math.max(n, logx ? 10 : 10);
+    var series = runs.map(function (r, i) {
+      return { name: 'Run ' + (i + 1), slot: i + 1 > 4 ? ((i % 4) + 1) : i + 1, points: r.trace.points(r.n, r.n ? r.sum / r.n : undefined).filter(function (p) { return p[1] !== undefined; }) };
+    });
+    if (runs.length === 5) series[4].color = '--ink-3';
+    if (document.getElementById('band').checked && n > 0) {
+      var up = [], lo = [];
+      for (var t = 1; t <= n; t = Math.max(t + 1, Math.floor(t * 1.08))) {
+        up.push([t, M.exact + 2 * M.sd / Math.sqrt(t)]); lo.push([t, M.exact - 2 * M.sd / Math.sqrt(t)]);
+      }
+      up.push([n, M.exact + 2 * M.sd / Math.sqrt(n)]); lo.push([n, M.exact - 2 * M.sd / Math.sqrt(n)]);
+      series.push({ name: 'typical range (±2 standard errors)', ref: true, points: up });
+      series.push({ ref: true, points: lo, noLegend: true });
+    }
+    chart.set(series, [{ y: M.exact, label: 'exact ' + M.exactTxt.split(' ')[0] }]);
+    Sim.set('t-n', Sim.int(n));
+    Sim.set('t-r1', n ? Sim.fix(runs[0].sum / n, 4) : '—');
+    var far = 0; runs.forEach(function (r) { if (r.n) far = Math.max(far, Math.abs(r.sum / r.n - M.exact)); });
+    Sim.set('t-far', n ? Sim.fix(far, 4) : '—');
+    Sim.set('t-exact', M.exactTxt.split(' ').slice(-1)[0]);
+    Sim.set('t-exact-sub', M.exactTxt);
+    Sim.set('t-r1-label', 'Run 1: ' + M.y);
+    Sim.set('cap', M.cap);
+  }
+  function add(k) {
+    var M = MODES[mode];
+    runner.run(k, function () {
+      for (var i = 0; i < runs.length; i++) { var r = runs[i]; r.sum += M.trial(); r.n++; r.trace.push(r.n, r.sum / r.n); }
+    }, draw, Sim.animated(k, 1.6));
+  }
+  Sim.segmented('mode', Object.keys(MODES).map(function (k) { return { value: k, label: MODES[k].label }; }), 'coin',
+    function (v) { mode = v; reset(); });
+  Sim.$$('[data-add]').forEach(function (b) { b.addEventListener('click', function () { add(+b.dataset.add); }); });
+  document.getElementById('reset').addEventListener('click', reset);
+  document.getElementById('runs').addEventListener('change', reset);
+  document.getElementById('logx').addEventListener('change', draw);
+  document.getElementById('band').addEventListener('change', draw);
+  reset();
+})();
+
+</script>
+</body>
+</html>

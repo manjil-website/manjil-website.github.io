@@ -1,0 +1,43 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>The lottery</h1>
+<p class="lede">Choose 6 numbers from 1 to 49. Each week 6 numbers are drawn. There are C(49, 6) = 13,983,816 possible
+draws, and only one of them is yours.</p>
+{{SOURCE}}
+<section class="panel">
+  <h2>Your ticket</h2>
+  <p class="intro" id="pick-help">Click six numbers, or let the computer choose.</p>
+  <div id="board" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px;max-width:560px"></div>
+  <div class="controls" style="margin-top:12px">
+    <button class="btn ghost" type="button" id="quick">Quick pick</button>
+    <button class="btn ghost" type="button" id="clear">Clear</button>
+  </div>
+</section>
+<section class="panel">
+  <h2>Play</h2>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" id="draw1">Draw once</button>
+      <button class="btn" type="button" data-weeks="1000">Play 1,000 weeks</button>
+      <button class="btn" type="button" data-weeks="100000">Play 100,000 weeks</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="log" id="last"></div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Weeks played</div><div class="tile-value" id="t-w">0</div><div class="tile-sub" id="t-y"></div></div>
+    <div class="tile"><div class="tile-label">Best result so far</div><div class="tile-value" id="t-best">&mdash;</div></div>
+    <div class="tile key"><div class="tile-label">Jackpots</div><div class="tile-value" id="t-jack">0</div><div class="tile-sub">expected once every 13,983,816 weeks</div></div>
+  </div>
+  <div id="chart"></div>
+  <div class="table-wrap"><table class="data" id="table"></table></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>The chance of matching exactly <i>k</i> numbers is C(6, <i>k</i>) C(43, 6 &minus; <i>k</i>) / C(49, 6): choose which of your
+        numbers were drawn, then choose the rest from the numbers you did not pick.</li>
+    <li>About 44% of tickets match nothing at all, and matching three or more happens less than 2% of the time.</li>
+    <li>At one ticket a week, a jackpot is expected about once every 268,000 years. 100,000 simulated weeks is under 2,000 years
+        of play &mdash; almost certainly not enough.</li>
+  </ul>
+</section>

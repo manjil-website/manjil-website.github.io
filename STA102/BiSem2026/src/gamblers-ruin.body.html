@@ -1,0 +1,71 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>The gambler's ruin</h1>
+<p class="lede">Start with <i>i</i> units. Each round win one unit with probability <i>p</i> or lose one with probability
+1 &minus; <i>p</i>. Stop when you reach the target <i>N</i> or go broke. How likely are you to reach the target, and how long
+does it take?</p>
+{{SOURCE}}
+<section class="panel">
+  <h2>Set up the game</h2>
+  <div class="controls"><div id="presets"></div></div>
+  <div class="controls">
+    <label class="field">Start with <i>i</i> <input type="range" id="i" min="1" max="19" value="10"><output id="i-o"></output></label>
+    <label class="field">Target <i>N</i> <input type="range" id="N" min="2" max="200" value="20"><output id="N-o"></output></label>
+    <label class="field">Chance of winning a round <i>p</i> <input type="range" id="p" min="0.4" max="0.6" step="0.001" value="0.5"><output id="p-o"></output></label>
+  </div>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" id="paths">Watch 4 games</button>
+      <button class="btn" type="button" data-games="1000">Play 1,000 games</button>
+      <button class="btn" type="button" data-games="10000">Play 10,000</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Games played</div><div class="tile-value" id="t-g">0</div></div>
+    <div class="tile key"><div class="tile-label">Reached the target</div><div class="tile-value" id="t-win">&mdash;</div><div class="tile-sub" id="t-win-x"></div></div>
+    <div class="tile"><div class="tile-label">Average length (rounds)</div><div class="tile-value" id="t-len">&mdash;</div><div class="tile-sub" id="t-len-x"></div></div>
+    <div class="tile"><div class="tile-label">Longest game</div><div class="tile-value" id="t-max">&mdash;</div></div>
+  </div>
+  <div id="pchart"></div>
+  <div id="curve" style="margin-top:14px"></div>
+</section>
+<section class="panel">
+  <h2>If you must gamble, gamble boldly</h2>
+  <p class="intro">Ravi has &#8377;50 and wants &#8377;100, betting on red at roulette (<i>p</i> = 18/37). With stakes of <i>s</i> rupees
+  it is the same game with <i>i</i> = 50/<i>s</i> and <i>N</i> = 100/<i>s</i>. Fewer, bigger bets give the house edge fewer chances to work.</p>
+  <div class="controls">
+    <button class="btn" type="button" id="bold">Simulate 2,000 evenings at each stake</button>
+    <button class="btn ghost" type="button" id="bold-reset">Reset</button>
+  </div>
+  <div id="boldchart"></div>
+</section>
+<section class="panel">
+  <h2>Another first-step problem: a race to roll a six</h2>
+  <p class="intro">Asha and Bhavna take turns rolling a die, Asha first. The first to roll a six wins the last samosa.
+  Conditioning on the first round: p = 1/6 + (25/36) p, so p = 6/11.</p>
+  <div class="controls">
+    <label class="check"><input type="checkbox" id="five"> Asha also wins on a five (a tutorial exercise)</label>
+    <div class="group">
+      <button class="btn" type="button" data-races="1000">Run 1,000 races</button>
+      <button class="btn" type="button" data-races="10000">Run 10,000</button>
+      <button class="btn ghost" type="button" id="race-reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Races</div><div class="tile-value" id="r-n">0</div></div>
+    <div class="tile key"><div class="tile-label">Asha wins</div><div class="tile-value" id="r-a">&mdash;</div><div class="tile-sub" id="r-a-x">exact 6/11 = 0.5455</div></div>
+    <div class="tile"><div class="tile-label">Average number of rolls</div><div class="tile-value" id="r-len">&mdash;</div></div>
+  </div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>In a fair game (<i>p</i> = 1/2) the chance of reaching <i>N</i> is simply <i>i</i>/<i>N</i>, your share of the money on the table,
+        and the average length is <i>i</i>(<i>N</i> &minus; <i>i</i>).</li>
+    <li>Choose <b>Ravi at roulette</b>: a disadvantage of 1.4 percentage points per spin leaves him about a 6% chance of doubling
+        &#8377;50 one rupee at a time, after about 1,600 spins on average.</li>
+    <li>Choose <b>Deuce</b>: tennis from deuce is this game with <i>i</i> = 2, <i>N</i> = 4. Winning 55% of points gives about a 60% chance
+        of winning the game.</li>
+    <li>All the formulas come from one idea: condition on the first round, and find the original problem inside itself.</li>
+  </ul>
+</section>

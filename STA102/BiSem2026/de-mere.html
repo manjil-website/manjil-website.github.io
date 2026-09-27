@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>De Méré and Galileo · STA102 simulations</title>
+<meta name="description" content="The Chevalier&#x27;s two bets, and why three dice total 10 slightly more often than 9.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='3' width='34' height='34' rx='8' fill='%232a78d6'/%3E%3Ccircle cx='13' cy='13' r='3.6' fill='white'/%3E%3Ccircle cx='20' cy='20' r='3.6' fill='white'/%3E%3Ccircle cx='27' cy='27' r='3.6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sim.js"></script>
+</head>
+<body>
+<header class="site">
+  <a class="home" href="index.html">STA102 <span>· Probability simulations</span></a>
+  <nav><a href="index.html">All simulations</a><a href="../index.html">Course page</a><button id="theme-toggle" class="theme-btn" type="button">Theme: system</button></nav>
+</header>
+<main class="page">
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>De M&eacute;r&eacute; and Galileo</h1>
+<p class="lede">Two gambling puzzles from the 1600s where the gamblers' instincts, sharpened by thousands of games,
+noticed differences of about one or two percentage points.</p>
+<p class="source">From the slides: <b>Why should anyone care about chance?</b> and <b>Probability and what happens when you learn something</b>.</p>
+<section class="panel">
+  <h2>The Chevalier's two bets (1654)</h2>
+  <p class="intro"><b>Bet A:</b> roll one die four times; win if at least one six appears.
+  <b>Bet B:</b> roll two dice 24 times; win if at least one double six appears.
+  The Chevalier reasoned that 4 &times; 1/6 = 24 &times; 1/36 = 2/3, so the bets should be the same. He kept winning on A
+  and losing on B.</p>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-play="1">Play each bet once</button>
+      <button class="btn" type="button" data-play="1000">Play 1,000 of each</button>
+      <button class="btn" type="button" data-play="10000">Play 10,000 of each</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="two-col">
+    <div><div class="tile-label" style="margin-bottom:4px">Last game of Bet A</div><div class="dice-row" id="lastA"></div><div class="caption" id="lastA-c"></div></div>
+    <div><div class="tile-label" style="margin-bottom:4px">Last game of Bet B</div><div class="caption" id="lastB" style="margin-top:0"></div></div>
+  </div>
+  <div class="tiles" style="margin-top:12px">
+    <div class="tile"><div class="tile-label">Games of each bet</div><div class="tile-value" id="t-g">0</div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s1)"></span>Bet A wins</div><div class="tile-value" id="t-a">&mdash;</div><div class="tile-sub">exact 1 &minus; (5/6)<sup>4</sup> = 0.5177</div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s2)"></span>Bet B wins</div><div class="tile-value" id="t-b">&mdash;</div><div class="tile-sub">exact 1 &minus; (35/36)<sup>24</sup> = 0.4914</div></div>
+    <div class="tile"><div class="tile-label">Chevalier's profit at &#8377;1 a game</div><div class="tile-value" id="t-prof">&mdash;</div><div class="tile-sub">Bet A, Bet B</div></div>
+  </div>
+  <div id="chart"></div>
+</section>
+<section class="panel">
+  <h2>Galileo's three dice</h2>
+  <p class="intro">With three dice, a total of 9 and a total of 10 can each be made in six ways (1+2+6, 1+3+5, &hellip;).
+  Yet Italian gamblers noticed that 10 turns up a little more often. Counting the 216 <em>ordered</em> outcomes gives
+  P(9) = 25/216 and P(10) = 27/216.</p>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-throw="1000">Throw 1,000 times</button>
+      <button class="btn" type="button" data-throw="10000">Throw 10,000</button>
+      <button class="btn" type="button" data-throw="100000">Throw 100,000</button>
+      <button class="btn ghost" type="button" id="g-reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Throws</div><div class="tile-value" id="g-n">0</div></div>
+    <div class="tile"><div class="tile-label">Total 9</div><div class="tile-value" id="g-9">&mdash;</div><div class="tile-sub">exact 25/216 = 0.1157</div></div>
+    <div class="tile key"><div class="tile-label">Total 10</div><div class="tile-value" id="g-10">&mdash;</div><div class="tile-sub">exact 27/216 = 0.1250</div></div>
+    <div class="tile"><div class="tile-label">10s minus 9s so far</div><div class="tile-value" id="g-d">&mdash;</div><div class="tile-sub" id="g-d-x"></div></div>
+  </div>
+  <div id="gchart"></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>Bet A is a small winner and Bet B a small loser. Early on either can look better; it takes a few thousand games for the
+        gap of 2.6 percentage points to show clearly. De M&eacute;r&eacute; had played enough to feel it.</li>
+    <li>&ldquo;Four chances of 1/6&rdquo; is not 4/6: the chances overlap. The complement gives the right answer:
+        P(no six in four rolls) = (5/6)<sup>4</sup>.</li>
+    <li>Galileo's point: the six &ldquo;ways&rdquo; to make 9 are not equally likely. 1+2+6 can come up in 3! = 6 orders, 3+3+3 in only one.
+        Always count outcomes that really are equally likely.</li>
+  </ul>
+</section>
+
+<nav class="prevnext" style="display:flex;justify-content:space-between;gap:12px;margin-top:34px;font-size:0.92rem"><a href="positive-test.html">← The positive test</a><a href="dice-events.html">Events on the two-dice grid →</a></nav>
+</main>
+<footer class="site-foot">STA102 Probability and Random Variables · Ahmedabad University · Monsoon 2026 ·
+<a href="../../index.html">saikia.in</a>. Every simulation runs in your browser; nothing is sent anywhere.</footer>
+<script>
+(function () {
+  var PA = 1 - Math.pow(5 / 6, 4), PB = 1 - Math.pow(35 / 36, 24);
+  var g = 0, wa = 0, wb = 0, trA = new Sim.Trace(600), trB = new Sim.Trace(600), runner = new Sim.Runner(), lastA = null, lastB = null;
+  var chart = new Sim.LineChart('chart', { height: 300, xLabel: 'games', yLabel: 'fraction of games won', xLog: true, xMin: 1, yMin: 0.3, yMax: 0.7,
+    tipX: function (x) { return 'after ' + Sim.int(x) + ' games'; }, tipY: function (v) { return Sim.fix(v, 4); } });
+  function playA() { var r = []; for (var i = 0; i < 4; i++) r.push(Sim.die()); return r; }
+  function playB() { for (var i = 1; i <= 24; i++) { if (Sim.die() === 6 && Sim.die() === 6) return i; } return 0; }
+  function one() {
+    lastA = playA(); lastB = playB(); g++;
+    if (lastA.indexOf(6) >= 0) wa++; if (lastB) wb++;
+    trA.push(g, wa / g); trB.push(g, wb / g);
+  }
+  function draw() {
+    chart.o.xMax = Math.max(10, g);
+    chart.set([{ name: 'Bet A', slot: 1, points: trA.points(g, g ? wa / g : undefined).filter(function (p) { return p[1] !== undefined; }) },
+               { name: 'Bet B', slot: 2, points: trB.points(g, g ? wb / g : undefined).filter(function (p) { return p[1] !== undefined; }) }],
+              [{ y: PA, label: 'A exact 0.518' }, { y: PB, label: 'B exact 0.491', below: true }]);
+    Sim.set('t-g', Sim.int(g));
+    Sim.set('t-a', g ? Sim.fix(wa / g, 4) : '—'); Sim.set('t-b', g ? Sim.fix(wb / g, 4) : '—');
+    function money(w) { var v = 2 * w - g; return (v >= 0 ? '+' : '−') + '₹' + Sim.int(Math.abs(v)); }
+    Sim.set('t-prof', g ? money(wa) + ', ' + money(wb) : '—');
+    if (lastA) {
+      Sim.html('lastA', lastA.map(function (d) { return Sim.dieSVG(d, d === 6 ? 'hit' : ''); }).join(''));
+      Sim.set('lastA-c', lastA.indexOf(6) >= 0 ? 'A six appeared: Bet A wins.' : 'No six: Bet A loses.');
+      Sim.set('lastB', lastB ? 'A double six appeared on throw ' + lastB + ' of 24: Bet B wins.' : 'No double six in 24 throws of two dice: Bet B loses.');
+    } else { Sim.html('lastA', ''); Sim.set('lastA-c', ''); Sim.set('lastB', ''); }
+  }
+  Sim.$$('[data-play]').forEach(function (b) { b.addEventListener('click', function () {
+    var k = +b.dataset.play; if (k === 1) { one(); draw(); } else runner.run(k, one, draw, Sim.animated(k, 1.4)); }); });
+  document.getElementById('reset').addEventListener('click', function () { runner.cancel(); g = wa = wb = 0; trA = new Sim.Trace(600); trB = new Sim.Trace(600); lastA = lastB = null; draw(); });
+  draw();
+
+  /* Galileo */
+  var EX = new Array(19).fill(0);
+  for (var a = 1; a <= 6; a++) for (var b = 1; b <= 6; b++) for (var c = 1; c <= 6; c++) EX[a + b + c]++;
+  var cnt = new Array(19).fill(0), n = 0, gr = new Sim.Runner();
+  var gchart = new Sim.BarChart('gchart', { height: 280, xLabel: 'total of three dice', yLabel: 'fraction of throws',
+    valFmt: function (v) { return Sim.fix(v, 4); } });
+  function gdraw() {
+    var cats = [], sim = [], ex = [];
+    for (var s = 3; s <= 18; s++) { cats.push(s); sim.push(n ? cnt[s] / n : 0); ex.push(EX[s] / 216); }
+    gchart.set({ categories: cats, series: [{ name: 'simulated', slot: 1, values: sim }], exact: { name: 'exact (count / 216)', values: ex } });
+    Sim.set('g-n', Sim.int(n));
+    Sim.set('g-9', n ? Sim.fix(cnt[9] / n, 4) : '—'); Sim.set('g-10', n ? Sim.fix(cnt[10] / n, 4) : '—');
+    var d = cnt[10] - cnt[9]; Sim.set('g-d', n ? (d >= 0 ? '+' : '−') + Sim.int(Math.abs(d)) : '—');
+    Sim.set('g-d-x', n ? 'expected about +' + Sim.int(n * 2 / 216) : '');
+  }
+  Sim.$$('[data-throw]').forEach(function (b) { b.addEventListener('click', function () {
+    var k = +b.dataset.throw;
+    gr.run(k, function () { cnt[Sim.die() + Sim.die() + Sim.die()]++; n++; }, gdraw, Sim.animated(k, 1.2)); }); });
+  document.getElementById('g-reset').addEventListener('click', function () { gr.cancel(); cnt = new Array(19).fill(0); n = 0; gdraw(); });
+  gdraw();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>Simpson's paradox</h1>
+<p class="lede">In a 1986 study of 700 kidney-stone patients, treatment A had the higher success rate for small stones
+<em>and</em> for large stones &mdash; but treatment B had the higher success rate overall. Change who got which treatment and
+see why.</p>
+{{SOURCE}}
+<section class="panel">
+  <div class="table-wrap"><table class="data">
+    <tr><th></th><th>Treatment A</th><th>Treatment B</th></tr>
+    <tr><td>small stones</td><td>81/87 = 93.1%</td><td>234/270 = 86.7%</td></tr>
+    <tr><td>large stones</td><td>192/263 = 73.0%</td><td>55/80 = 68.8%</td></tr>
+    <tr class="hl"><td>all patients</td><td>273/350 = 78.0%</td><td>289/350 = 82.6%</td></tr>
+  </table></div>
+  <p class="caption">Data: C. R. Charig et al., <i>British Medical Journal</i> 292 (1986). The success rate inside each group is
+  held fixed below; only the mix of patients changes.</p>
+  <div class="controls" style="margin-top:14px">
+    <label class="field">Share of A's patients with large stones <input type="range" id="wa" min="0" max="100" step="1" value="75"><output id="wa-o"></output></label>
+    <label class="field">Share of B's patients with large stones <input type="range" id="wb" min="0" max="100" step="1" value="23"><output id="wb-o"></output></label>
+  </div>
+  <div class="controls">
+    <button class="btn ghost" type="button" id="study">The study's mix</button>
+    <button class="btn ghost" type="button" id="same">Give both the same mix</button>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s1)"></span>A overall</div><div class="tile-value" id="t-a"></div><div class="tile-sub" id="t-a-x"></div></div>
+    <div class="tile"><div class="tile-label"><span class="swatch" style="background:var(--s2)"></span>B overall</div><div class="tile-value" id="t-b"></div><div class="tile-sub" id="t-b-x"></div></div>
+    <div class="tile key"><div class="tile-label">Which looks better overall?</div><div class="tile-value" id="t-w"></div><div class="tile-sub" id="t-w-x"></div></div>
+  </div>
+  <div id="chart"></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>The overall rate is a weighted average: P(success | A) = P(success | A, small) P(small | A) + P(success | A, large) P(large | A).
+        That is the law of total probability.</li>
+    <li>In the study, A was given mostly to the hard cases (75% large stones) and B mostly to the easy ones (77% small). B's
+        overall number is flattered by its easy caseload.</li>
+    <li>Press <b>Give both the same mix</b>: with equal weights A wins overall, as it does in each group. Before trusting an
+        aggregate, ask what it is averaging over.</li>
+  </ul>
+</section>

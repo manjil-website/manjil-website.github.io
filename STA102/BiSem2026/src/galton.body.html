@@ -1,0 +1,63 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>Order out of chaos</h1>
+<p class="lede">Each ball takes a wildly unpredictable path through the pegs. The pile they make is predictable,
+and it is always the same shape.</p>
+{{SOURCE}}
+<section class="panel">
+  <h2>The Galton board</h2>
+  <p class="intro">At every peg a ball bounces right with probability <i>p</i> and left otherwise. After <i>R</i>
+  rows its bin is the number of rightward bounces.</p>
+  <div class="controls">
+    <label class="field">Rows <input type="range" id="rows" min="4" max="16" value="10"><output id="rows-o"></output></label>
+    <label class="field">Chance of bouncing right <input type="range" id="p" min="0.2" max="0.8" step="0.05" value="0.5"><output id="p-o"></output></label>
+  </div>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" data-drop="1">Drop 1 ball</button>
+      <button class="btn" type="button" data-drop="100">Drop 100</button>
+      <button class="btn" type="button" data-drop="1000">Drop 1,000</button>
+      <button class="btn ghost" type="button" id="instant">Add 10,000 instantly</button>
+      <button class="btn ghost" type="button" id="g-reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Balls landed</div><div class="tile-value" id="g-n">0</div></div>
+    <div class="tile"><div class="tile-label">Average bin</div><div class="tile-value" id="g-mean">&mdash;</div><div class="tile-sub" id="g-mean-x"></div></div>
+    <div class="tile"><div class="tile-label">Most common bin</div><div class="tile-value" id="g-mode">&mdash;</div></div>
+  </div>
+  <div class="viz-frame" id="board"></div>
+  <p class="caption"><span class="swatch" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--s1)"></span>
+  bars: balls landed in each bin &nbsp; <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ink-1)"></span>
+  dots: the expected number, <i>n</i>&middot;C(<i>R</i>,<i>k</i>)&thinsp;<i>p</i><sup><i>k</i></sup>(1&minus;<i>p</i>)<sup><i>R</i>&minus;<i>k</i></sup></p>
+  <details class="table-view"><summary>Show the numbers</summary><div class="table-wrap" id="g-table"></div></details>
+</section>
+
+<section class="panel">
+  <h2>The same picture, in dice</h2>
+  <p class="intro">Roll <i>n</i> fair dice and take their average. With one die every value from 1 to 6 is equally
+  likely; with more dice the averages crowd around 3.5 in a bell shape that gets narrower as <i>n</i> grows.</p>
+  <div class="controls">
+    <label class="field">Dice per roll <input type="range" id="nd" min="1" max="20" value="2"><output id="nd-o"></output></label>
+    <div class="group">
+      <button class="btn" type="button" data-roll="1000">Roll 1,000 times</button>
+      <button class="btn" type="button" data-roll="10000">Roll 10,000</button>
+      <button class="btn ghost" type="button" id="d-reset">Reset</button>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="tile-label">Rolls</div><div class="tile-value" id="d-n">0</div></div>
+    <div class="tile"><div class="tile-label">Average of the averages</div><div class="tile-value" id="d-mean">&mdash;</div><div class="tile-sub">exact 3.5</div></div>
+    <div class="tile"><div class="tile-label">Spread (standard deviation)</div><div class="tile-value" id="d-sd">&mdash;</div><div class="tile-sub" id="d-sd-x"></div></div>
+  </div>
+  <div id="dchart"></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>One ball tells you nothing. A thousand balls always build the same hump &mdash; the <em>binomial distribution</em>, which
+        we will study properly later in the course.</li>
+    <li>Move the bias away from 0.5: the hump slides but keeps its shape.</li>
+    <li>For dice, the spread of the average shrinks like 1/&radic;<i>n</i>: four times as many dice, half the spread.
+        That the hump becomes a bell whatever you average is the <em>central limit theorem</em>.</li>
+  </ul>
+</section>

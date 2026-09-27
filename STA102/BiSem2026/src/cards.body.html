@@ -1,0 +1,48 @@
+<nav class="crumb"><a href="index.html">&larr; All simulations</a></nav>
+<h1>Poker hands and card puzzles</h1>
+<p class="lede">A five-card hand is one of C(52, 5) = 2,598,960 equally likely hands. Deal thousands of them and the
+frequencies line up with the counts &mdash; which is exactly why a full house beats a flush.</p>
+{{SOURCE}}
+<section class="panel">
+  <h2>Poker hands</h2>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" id="deal1">Deal one hand</button>
+      <button class="btn" type="button" data-deal="10000">Deal 10,000 hands</button>
+      <button class="btn" type="button" data-deal="100000">Deal 100,000</button>
+      <button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+  </div>
+  <div class="hand" id="hand"></div>
+  <p class="caption" id="hand-cap">Press <b>Deal one hand</b>.</p>
+  <div class="tiles"><div class="tile"><div class="tile-label">Hands dealt</div><div class="tile-value" id="t-n">0</div></div></div>
+  <div class="table-wrap"><table class="data" id="poker"></table></div>
+</section>
+<section class="panel">
+  <h2>Puzzles with aces</h2>
+  <p class="intro">Shuffle a deck thoroughly and look at it five different ways. Each row is a puzzle from the slides.</p>
+  <div class="controls">
+    <div class="group">
+      <button class="btn" type="button" id="shuf1">Shuffle one deck</button>
+      <button class="btn" type="button" data-shuf="10000">Shuffle 10,000 decks</button>
+      <button class="btn" type="button" data-shuf="100000">Shuffle 100,000</button>
+      <button class="btn ghost" type="button" id="reset2">Reset</button>
+    </div>
+  </div>
+  <div class="hand" id="deck" style="gap:4px"></div>
+  <p class="caption" id="deck-cap">Press <b>Shuffle one deck</b> to see a deck turned over up to the first ace and the card after it.</p>
+  <div class="tiles"><div class="tile"><div class="tile-label">Decks shuffled</div><div class="tile-value" id="t-d">0</div></div></div>
+  <div class="table-wrap"><table class="data" id="aces"></table></div>
+</section>
+<section class="notes">
+  <h2>What to notice</h2>
+  <ul>
+    <li>The ranking of poker hands is a ranking by probability: the rarer hand wins. A straight flush turns up about once in
+        65,000 hands, so even 100,000 hands will show only one or two.</li>
+    <li>The card after the first ace is equally likely to be the ace of spades or the two of clubs: 1 in 52 each. The competing
+        arguments (&ldquo;the ace of spades may already be used&rdquo;, &ldquo;the two of clubs may already have gone&rdquo;)
+        cancel exactly.</li>
+    <li>The second card is an ace with probability 1/13, exactly like the first. An unseen card cannot change your information.</li>
+    <li>Only about one deal in ten puts exactly one ace in each of the four 13-card piles.</li>
+  </ul>
+</section>
